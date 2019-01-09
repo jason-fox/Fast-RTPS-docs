@@ -27,7 +27,7 @@ An XML file can contain several XML profiles. The available profile types are :r
 .. literalinclude:: ../code/XMLTester.xml
     :language: xml
     :start-after: <!-->PROFILES-TRANSPORT-DESCRIPTORS<-->
-    :lines: 1-6, 13-33
+    :lines: 1-6, 11-32
 
 The Fast-RTPS XML format uses some structs along several profiles types.
 For readability, the :ref:`commonxml` section groups these common structs.
@@ -100,7 +100,7 @@ The XML label ``<transport_descriptors>`` can hold any number of ``<transport_de
 |                              | | This field is optional if the transport doesn't need to define a WAN address. | | :class:`XXX.XXX.XXX.XXX`.      |                |
 +------------------------------+---------------------------------------------------------------------------------+----------------------------------+----------------+
 | ``<output_port>``            | | Port used for output bound.                                                   | ``uint16``                       | 0              |
-|                              | | If this field isn't defined, the output port will be random.                  |                                  |                |
+|                              | | If this field isn't defined, the output port will be random (UDP **only**).   |                                  |                |
 +------------------------------+---------------------------------------------------------------------------------+----------------------------------+----------------+
 | ``<keep_alive_frequency_ms>``| Frequency in milliseconds for sending RTCP keepalive requests (TCP **only**).   | ``uint32``                       | 50000          |
 +------------------------------+---------------------------------------------------------------------------------+----------------------------------+----------------+
@@ -116,7 +116,7 @@ The XML label ``<transport_descriptors>`` can hold any number of ``<transport_de
 | ``<logical_port_increment>`` | | Increment between logical ports to try during RTCP negotiation.               | ``uint16``                       | 2              |
 |                              | | (TCP **only**).                                                               |                                  |                |
 +------------------------------+---------------------------------------------------------------------------------+----------------------------------+----------------+
-| ``<ListeningPorts>``         | | Local port to work as TCP acceptor for input connections.                     | ``List <uint16>``                |                |
+| ``<listening_ports>``        | | Local ports to work as TCP acceptor for input connections.                    | ``List <uint16>``                |                |
 |                              | | If not set, the transport will work as TCP client only (TCP **only**).        |                                  |                |
 +------------------------------+---------------------------------------------------------------------------------+----------------------------------+----------------+
 
@@ -146,7 +146,7 @@ Stand-Alone:
 
 Rooted:
 
-.. literalinclude:: ../code/XMLTester.xml
+.. literalinclude:: ../code/XMLTesterAux.xml
     :language: xml
     :start-after: <!-- ROOTED TYPES START -->
     :end-before: <!-- ROOTED TYPES END -->
@@ -668,61 +668,32 @@ LocatorListType
 It represents a list of :class:`Locator_t`.
 LocatorListType is normally used as an anonymous type, this is, it hasn't its own label.
 Instead, it is used inside other configuration parameter labels that expect a list of locators and give it sense,
-for example, in ``<defaultUnicastLocatorList>``:
+for example, in ``<defaultUnicastLocatorList>``.
+The locator kind is defined by its own tag and can take the values ``<udpv4>``, ``<tcpv4>``, ``<udpv6>``, and
+``<tcpv6>``:
 
 .. literalinclude:: ../code/XMLTester.xml
     :language: xml
     :start-after: <!-->XML-LOCATOR-LIST<-->
     :end-before: <!--><-->
 
-In this example, there are three different locators in ``<defaultUnicastLocatorList>``.
+In this example, there are one locator of each kind in ``<defaultUnicastLocatorList>``.
 
-Let's see each Locator's fields in detail:
+Let's see each possible Locator's field in detail:
 
-+------------------------------+-------------------------------------------------------------------------------+----------------------------------+--------------------+
-| Name                         | Description                                                                   | Values                           | Default            |
-+==============================+===============================================================================+==================================+====================+
-| ``<kind>``                   | Locator's kind.                                                               | :class:`UDPv4`, :class:`UDPv6`,  | :class:`UDPv4`     |
-|                              |                                                                               | :class:`TCPv4`, :class:`TCPv6`   |                    |
-+------------------------------+-------------------------------------------------------------------------------+----------------------------------+--------------------+
-| ``<port>``                   | Physical port number of the locator.                                          | ``Uint32``                       | 0                  |
-+------------------------------+-------------------------------------------------------------------------------+----------------------------------+--------------------+
-| ``<port_>``                  | | It allows to access low-level TCP port details.                             | :ref:`TCP Ports <tcpports>`      |                    |
-|                              | | It is detailed in :ref:`TCP Ports <tcpports>`                               |                                  |                    |
-+------------------------------+-------------------------------------------------------------------------------+----------------------------------+--------------------+
-| ``<address>``                | IPv4 address of the locator                                                   | ``string`` with IPv4 Format      | :class:`0.0.0.0`   |
-+------------------------------+-------------------------------------------------------------------------------+----------------------------------+--------------------+
-| ``<addresses_>``             | | It allows managing low-level details in address of TCPv4 locators.          | :ref:`TCP Addresses <tcpaddrs>`  |                    |
-|                              | | It is detailed in :ref:`TCP Addresses <tcpaddrs>`                           |                                  |                    |
-+------------------------------+-------------------------------------------------------------------------------+----------------------------------+--------------------+
-| ``<ipv6_address>``           | IPv6 address of the locator                                                   | ``string`` with IPv6 Format      | :class:`::`        |
-+------------------------------+-------------------------------------------------------------------------------+----------------------------------+--------------------+
-
-.. _tcpports:
-
-**TCP Ports**
-
-+------------------------------+-------------------------------------------------------------------------------+----------------------------------+--------------------+
-| Name                         | Description                                                                   | Values                           | Default            |
-+==============================+===============================================================================+==================================+====================+
-| ``<physical_port>``          | TCP port.                                                                     | ``UInt16``                       | 0                  |
-+------------------------------+-------------------------------------------------------------------------------+----------------------------------+--------------------+
-| ``<logical_port>``           | RTPS logical port.                                                            | ``UInt16``                       | 0                  |
-+------------------------------+-------------------------------------------------------------------------------+----------------------------------+--------------------+
-
-.. _tcpaddrs:
-
-**TCP Addresses**
-
-+------------------------------+-------------------------------------------------------------------------------+----------------------------------+--------------------+
-| Name                         | Description                                                                   | Values                           | Default            |
-+==============================+===============================================================================+==================================+====================+
-| ``<unique_lan_id>``          | The LAN ID uniquely identifies the LAN the locator belongs to.                | ``string`` (16 bytes)            |                    |
-+------------------------------+-------------------------------------------------------------------------------+----------------------------------+--------------------+
-| ``<wan_address>``            | WAN IPv4 address.                                                             | ``string`` with IPv4 Format      | :class:`0.0.0.0`   |
-+------------------------------+-------------------------------------------------------------------------------+----------------------------------+--------------------+
-| ``<ip_address>``             | WAN IPv4 address.                                                             | ``string`` with IPv4 Format      | :class:`0.0.0.0`   |
-+------------------------------+-------------------------------------------------------------------------------+----------------------------------+--------------------+
++------------------------------+-----------------------------------------------------------------------------------+----------------------------------+--------------------+
+| Name                         | Description                                                                       | Values                           | Default            |
++==============================+===================================================================================+==================================+====================+
+| ``<port>``                   | RTPS port number of the locator. *Physical port* in UDP, *logical port* in TCP.   | ``Uint32``                       | 0                  |
++------------------------------+-----------------------------------------------------------------------------------+----------------------------------+--------------------+
+| ``<physical_port>``          | TCP's *physical port*.                                                            | ``Uint32``                       | 0                  |
++------------------------------+-----------------------------------------------------------------------------------+----------------------------------+--------------------+
+| ``<address>``                | IP address of the locator                                                         | ``string`` with expected format  | ""                 |
++------------------------------+-----------------------------------------------------------------------------------+----------------------------------+--------------------+
+| ``<unique_lan_id>``          | The LAN ID uniquely identifies the LAN the locator belongs to (**TCPv4 only**).   | ``string`` (16 bytes)            |                    |
++------------------------------+-----------------------------------------------------------------------------------+----------------------------------+--------------------+
+| ``<wan_address>``            | WAN IPv4 address (**TCPv4 only**).                                                | ``string`` with IPv4 Format      | :class:`0.0.0.0`   |
++------------------------------+-----------------------------------------------------------------------------------+----------------------------------+--------------------+
 
 
 .. _PropertiesPolicyType:
