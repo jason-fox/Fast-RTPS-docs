@@ -270,7 +270,7 @@ Member types are any type that can belong to a ``<struct>`` or a ``<union>``, or
 
 **Basic types**
 
-The indentifiers of the available basic types are:
+The identifiers of the available basic types are:
 
 +------------------------+------------------------+------------------------+
 | ``boolean``            | ``int64``              | ``float128``           |
@@ -341,7 +341,8 @@ Example:
 |                                               |                                                     |
 +-----------------------------------------------+-----------------------------------------------------+
 
-The example shows a sequence with ``sequenceMaxLength`` ``3`` of sequences with ``sequenceMaxLength`` ``2`` with ``<int32>`` contents.
+The example shows a sequence with ``sequenceMaxLength`` ``3`` of sequences with ``sequenceMaxLength`` ``2``
+with ``<int32>`` contents.
 As IDL would be:
 
 .. code-block:: c
@@ -829,7 +830,7 @@ Let's see each possible Locator's field in detail:
 +---------------------+----------------------------------+----------------------------------+------------------+
 | ``<wan_address>``   | WAN IPv4 address                 | ``string`` with IPv4 Format      | :class:`0.0.0.0` |
 |                     | (**TCPv4 only**).                |                                  |                  |
-+------------------------------+-----------------------------------------------------------------------------------+----------------------------------+--------------------+
++---------------------+----------------------------------+----------------------------------+------------------+
 
 
 .. _PropertiesPolicyType:
