@@ -22,8 +22,16 @@
 #include <fastrtps/xmlparser/XMLProfileManager.h>
 #include <fastrtps/types/DynamicTypePtr.h>
 
+#include <fastdds/rtps/transport/TCPTransportDescriptor.h>
 #include <fastdds/rtps/transport/UDPv4TransportDescriptor.h>
+#include <fastdds/rtps/transport/UDPv6TransportDescriptor.h>
+#include <fastdds/rtps/transport/TCPv4TransportDescriptor.h>
+#include <fastdds/rtps/transport/TCPv6TransportDescriptor.h>
+#include <fastdds/rtps/transport/shared_mem/SharedMemTransportDescriptor.h>
 #include <fastrtps/utils/IPLocator.h>
+
+#include <security/accesscontrol/GovernanceParser.h>
+#include <security/accesscontrol/PermissionsParser.h>
 
 using namespace eprosima::fastdds::dds;
 
@@ -2885,6 +2893,13 @@ void dds_dynamic_types_examples ()
 
 void dds_transport_examples ()
 {
+    using UDPv4TransportDescriptor = eprosima::fastdds::rtps::UDPv4TransportDescriptor;
+    using UDPv6TransportDescriptor = eprosima::fastdds::rtps::UDPv6TransportDescriptor;
+    using TCPv4TransportDescriptor = eprosima::fastdds::rtps::TCPv4TransportDescriptor;
+    using TCPv6TransportDescriptor = eprosima::fastdds::rtps::TCPv6TransportDescriptor;
+    using SharedMemTransportDescriptor = eprosima::fastdds::rtps::SharedMemTransportDescriptor;
+    using Locator_t = eprosima::fastrtps::rtps::Locator_t;
+    using IPLocator = eprosima::fastrtps::rtps::IPLocator;
     {
         //DDS_TRANSPORT_METAMULTICASTLOCATOR
         DomainParticipantQos qos;
@@ -2926,7 +2941,7 @@ void dds_transport_examples ()
         locator.port = 22224;
 
         // Add the locator to the DomainParticipantQos
-        qos.wire_protocol().defaultMulticastLocatorList.push_back(locator);
+        qos.wire_protocol().default_multicast_locator_list.push_back(locator);
         //!--
     }
 
@@ -2941,7 +2956,7 @@ void dds_transport_examples ()
         locator.port = 22225;
 
         // Add the locator to the DomainParticipantQos
-        qos.wire_protocol().defaultUnicastLocatorList.push_back(locator);
+        qos.wire_protocol().default_unicast_locator_list.push_back(locator);
         //!--
     }
 
@@ -2956,7 +2971,7 @@ void dds_transport_examples ()
         udp_transport->non_blocking_send = true;
 
         // Link the Transport Layer to the Participant.
-        qos.transport().userTransports.push_back(udp_transport);
+        qos.transport().user_transports.push_back(udp_transport);
         //!--
     }
 
@@ -2972,7 +2987,7 @@ void dds_transport_examples ()
         tcp_transport->set_WAN_address("80.80.99.45");
 
         // Link the Transport Layer to the Participant.
-        qos.transport().userTransports.push_back(tcp_transport);
+        qos.transport().user_transports.push_back(tcp_transport);
         //!--
     }
 
@@ -2981,12 +2996,12 @@ void dds_transport_examples ()
         DomainParticipantQos qos;
 
         // Disable the built-in Transport Layer.
-        qos.transport().useBuiltinTransports = false;
+        qos.transport().use_builtin_transports = false;
 
         // Create a descriptor for the new transport.
         // Do not configure any listener port
         auto tcp_transport = std::make_shared<TCPv4TransportDescriptor>();
-        qos.transport().userTransports.push_back(tcp_transport);
+        qos.transport().user_transports.push_back(tcp_transport);
 
         // Set initial peers.
         Locator_t initial_peer_locator;
@@ -3006,7 +3021,7 @@ void dds_transport_examples ()
         std::shared_ptr<SharedMemTransportDescriptor> shm_transport = std::make_shared<SharedMemTransportDescriptor>();
 
         // Link the Transport Layer to the Participant.
-        qos.transport().userTransports.push_back(shm_transport);
+        qos.transport().user_transports.push_back(shm_transport);
         //!--
     }
 
@@ -3016,13 +3031,13 @@ void dds_transport_examples ()
 
         // Create a descriptor for the new transport.
         auto tls_transport = std::make_shared<TCPv4TransportDescriptor>();
-        tcp_transport->sendBufferSize = 9216;
-        tcp_transport->receiveBufferSize = 9216;
-        tcp_transport->add_listener_port(5100);
-        tcp_transport->set_WAN_address("80.80.99.45");
+        tls_transport->sendBufferSize = 9216;
+        tls_transport->receiveBufferSize = 9216;
+        tls_transport->add_listener_port(5100);
+        tls_transport->set_WAN_address("80.80.99.45");
 
         // Create the TLS configuration
-        using TLSOptions = TCPTransportDescriptor::TLSConfig::TLSOptions;
+        using TLSOptions = eprosima::fastdds::rtps::TCPTransportDescriptor::TLSConfig::TLSOptions;
         tls_transport->apply_security = true;
         tls_transport->tls_config.password = "test";
         tls_transport->tls_config.cert_chain_file = "server.pem";
@@ -3033,7 +3048,7 @@ void dds_transport_examples ()
         tls_transport->tls_config.add_option(TLSOptions::NO_SSLV2);
 
         // Link the Transport Layer to the Participant.
-        qos.transport().userTransports.push_back(tls_transport);
+        qos.transport().user_transports.push_back(tls_transport);
         //!--
     }
 
@@ -3052,8 +3067,8 @@ void dds_transport_examples ()
         auto tls_transport = std::make_shared<TCPv4TransportDescriptor>();
 
         // Create the TLS configuration
-        using TLSOptions = TCPTransportDescriptor::TLSConfig::TLSOptions;
-        using TLSVerifyMode = TCPTransportDescriptor::TLSConfig::TLSVerifyMode;
+        using TLSOptions = eprosima::fastdds::rtps::TCPTransportDescriptor::TLSConfig::TLSOptions;
+        using TLSVerifyMode = eprosima::fastdds::rtps::TCPTransportDescriptor::TLSConfig::TLSVerifyMode;
         tls_transport->apply_security = true;
         tls_transport->tls_config.verify_file = "ca.pem";
         tls_transport->tls_config.verify_mode = TLSVerifyMode::VERIFY_PEER;
@@ -3062,7 +3077,7 @@ void dds_transport_examples ()
         tls_transport->tls_config.add_option(TLSOptions::NO_SSLV2);
 
         // Link the Transport Layer to the Participant.
-        qos.transport().userTransports.push_back(tls_transport);
+        qos.transport().user_transports.push_back(tls_transport);
         //!--
     }
 
@@ -3077,7 +3092,7 @@ void dds_transport_examples ()
         tcp_transport->interfaceWhiteList.emplace_back("127.0.0.1");
 
         // Link the Transport Layer to the Participant.
-        qos.transport().userTransports.push_back(tcp_transport);
+        qos.transport().user_transports.push_back(tcp_transport);
     }
 
     {
