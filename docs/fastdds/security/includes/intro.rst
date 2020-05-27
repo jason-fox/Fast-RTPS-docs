@@ -3,7 +3,7 @@ at three levels: authentication of remote participants, access control of entiti
 
 By default, Fast RTPS doesn't compile security support.
 You can activate it adding ``-DSECURITY=ON`` at CMake configuration step.
-For more information about Fast RTPS compilation, see :ref:`installation-from-sources`.
+For more information about Fast RTPS compilation, see :ref:`installation`.
 
 You can activate and configure security plugins through :class:`eprosima::fastrtps::Participant` attributes using
 properties.
